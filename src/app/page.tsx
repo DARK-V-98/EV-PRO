@@ -49,6 +49,16 @@ export default function Home() {
 
   return (
     <div className="flex h-full overflow-hidden bg-slate-50">
+      {/* SEO content — visually hidden but indexed by Google */}
+      <h1 className="sr-only">EV PRO — EV Charging Places in Sri Lanka | Find EV Charging Points Near You</h1>
+      <p className="sr-only">
+        Find EV charging places, EV charging points and electric vehicle charging stations across Sri Lanka.
+        300+ charging stations in Colombo, Kandy, Galle, Negombo, Matara, Jaffna, Anuradhapura, Trincomalee,
+        Kurunegala, Batticaloa, Hambantota, Nuwara Eliya, Dambulla, Ratnapura and Badulla.
+        Filter by AC charger, DC fast charger, Type 2, CCS2, CHAdeMO connector. Find free EV charging and 24-hour stations.
+        Get road directions and drive time to any EV charging station in Sri Lanka.
+        Daily updated data from Google Places. Built by eSystemLK — esystemlk.com.
+      </p>
 
       {/* ── Desktop sidebar (md+) ─────────────────────── */}
       <div className="hidden md:flex">
