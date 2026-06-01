@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "@/components/PWARegister";
+import { IOSInstallBanner } from "@/components/mobile/IOSInstallBanner";
 
 const spaceGrotesk = Space_Grotesk({ variable: "--font-heading", subsets: ["latin"], weight: ["400","500","600","700"] });
 const dmSans = DM_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["300","400","500","600"] });
@@ -172,6 +173,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="h-full antialiased overflow-hidden">
         <PWARegister />
         <JsonLd />
+        <IOSInstallBanner />
         {children}
       </body>
     </html>
