@@ -1,0 +1,19 @@
+{
+  "name": "EV PRO",
+  "short_name": "EV PRO",
+  "description": "Find EV charging stations across Sri Lanka",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "categories": ["travel", "utilities"],
+  "icons": [
+    { "src": "/ev.png",              "sizes": "any",     "type": "image/png",     "purpose": "any" },
+    { "src": "/icons/icon-192.png",  "sizes": "192x192", "type": "image/png",     "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png",  "sizes": "512x512", "type": "image/png",     "purpose": "any maskable" },
+    { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
