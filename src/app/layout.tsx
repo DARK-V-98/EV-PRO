@@ -3,6 +3,7 @@ import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "@/components/PWARegister";
 import { IOSInstallBanner } from "@/components/mobile/IOSInstallBanner";
+import { I18nProvider } from "@/lib/i18n";
 
 const spaceGrotesk = Space_Grotesk({ variable: "--font-heading", subsets: ["latin"], weight: ["400","500","600","700"] });
 const dmSans = DM_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["300","400","500","600"] });
@@ -171,10 +172,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="canonical" href={BASE_URL} />
       </head>
       <body className="h-full antialiased overflow-hidden">
-        <PWARegister />
-        <JsonLd />
-        <IOSInstallBanner />
-        {children}
+        <I18nProvider>
+          <PWARegister />
+          <JsonLd />
+          <IOSInstallBanner />
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

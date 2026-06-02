@@ -7,6 +7,7 @@ import type { RoadInfo } from "@/lib/routing";
 import { shareStation } from "@/lib/share";
 import { haptic } from "@/lib/haptics";
 import { StatusReporter } from "@/components/community/StatusReporter";
+import { ReviewsSection } from "@/components/community/ReviewsSection";
 
 interface StationDetailModalProps {
   station: ChargingStation | null;
@@ -205,6 +206,11 @@ export function StationDetailModal({ station, onClose, roadInfo, haversineKm, is
             </div>
           </div>
         )}
+
+        {/* Reviews & photos */}
+        <div className="pt-2 border-t border-slate-100">
+          <ReviewsSection stationId={station.id} />
+        </div>
 
         <p className="text-xs text-slate-400">
           Updated {station.lastUpdated}

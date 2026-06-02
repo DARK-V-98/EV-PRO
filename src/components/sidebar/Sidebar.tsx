@@ -7,6 +7,9 @@ import type { RoadInfo } from "@/lib/routing";
 import { SearchBar } from "./SearchBar";
 import { FilterPanel } from "./FilterPanel";
 import { StationCard } from "./StationCard";
+import { NotifyButton } from "@/components/NotifyButton";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useI18n } from "@/lib/i18n";
 
 interface SidebarProps {
   stations: ChargingStation[];
@@ -37,6 +40,7 @@ export function Sidebar({
   onLocate, locating, hasLocation, locationError, onClearLocation, accuracyMeters,
   isFavorite, onToggleFavorite,
 }: SidebarProps) {
+  const { t } = useI18n();
   return (
     <aside className="flex flex-col h-full w-96 shrink-0 bg-white" style={{ borderRight: "1px solid var(--border)" }}>
 
@@ -49,14 +53,17 @@ export function Sidebar({
               <h1 className="text-base font-bold leading-tight text-slate-900" style={{ fontFamily: "var(--font-heading)" }}>
                 EV <span className="text-green-600">PRO</span>
               </h1>
-              <p className="text-xs text-slate-400">Sri Lanka · {allStations.length} stations</p>
+              <p className="text-xs text-slate-400">{allStations.length} {t("stations")}</p>
             </div>
           </div>
-          <Link href="/submit"
-            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <NotifyButton compact />
+            <Link href="/submit"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" /> {t("add")}
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -90,9 +97,9 @@ export function Sidebar({
         {stations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-center px-6">
             <Zap className="w-8 h-8 mb-2 text-slate-300" />
-            <p className="text-sm text-slate-500">No stations found</p>
+            <p className="text-sm text-slate-500">{t("noStations")}</p>
             <button onClick={onClearFilters} className="mt-2 text-xs text-green-600 hover:text-green-700 underline transition-colors">
-              Clear all filters
+              {t("clearFilters")}
             </button>
           </div>
         ) : (
@@ -111,6 +118,11 @@ export function Sidebar({
             ))}
           </div>
         )}
+      </div>
+
+      {/* Language switcher */}
+      <div className="shrink-0 px-4 py-2 flex justify-center bg-white" style={{ borderTop: "1px solid var(--border)" }}>
+        <LanguageSwitcher />
       </div>
 
       {/* Developer credit */}
