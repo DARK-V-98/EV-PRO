@@ -2,7 +2,7 @@
 
 export function MapLegend() {
   return (
-    <div className="leaflet-bottom leaflet-left" style={{ zIndex: 1000 }}>
+    <div className="leaflet-bottom leaflet-left hidden md:block" style={{ zIndex: 1000 }}>
       <div className="leaflet-control m-3 p-3 rounded-xl text-xs bg-white border border-slate-200"
         style={{ boxShadow: "0 2px 12px rgba(15,23,42,0.1)", fontFamily: "var(--font-body)" }}>
         <p className="font-bold text-xs uppercase tracking-widest text-slate-400 mb-2"

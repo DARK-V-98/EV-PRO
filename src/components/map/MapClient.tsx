@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline, ZoomControl } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
@@ -74,8 +74,10 @@ export default function MapClient({ stations, onStationSelect, selectedStation, 
       maxZoom={18}
       maxBounds={SRI_LANKA_BOUNDS}
       maxBoundsViscosity={1.0}
+      zoomControl={false}
       className="h-full w-full"
     >
+      <ZoomControl position="topright" />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
