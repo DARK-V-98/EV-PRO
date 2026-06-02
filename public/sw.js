@@ -1,4 +1,4 @@
-const CACHE = "ev-charge-lk-v1";
+const CACHE = "ev-charge-lk-v2";
 const STATIC = [
   "/",
   "/manifest.json",

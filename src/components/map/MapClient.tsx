@@ -9,7 +9,6 @@ import L from "leaflet";
 import type { ChargingStation, ChargerType } from "@/types/station";
 import type { UserLocation } from "@/hooks/useGeolocation";
 import { StationMarker } from "./StationMarker";
-import { MapLegend } from "./MapLegend";
 
 const SRI_LANKA_CENTER: [number, number] = [7.8731, 80.7718];
 const SRI_LANKA_BOUNDS: [[number, number], [number, number]] = [[5.7, 79.5], [10.0, 82.0]];
@@ -106,7 +105,6 @@ export default function MapClient({ stations, onStationSelect, selectedStation, 
       {userLocation && <UserLocationMarker location={userLocation} />}
       <FlyToStation station={selectedStation} />
       <FlyToUser location={userLocation} />
-      <MapLegend />
     </MapContainer>
   );
 }

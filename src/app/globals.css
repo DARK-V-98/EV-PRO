@@ -135,6 +135,11 @@ select option {
 .leaflet-bar a:first-child { border-radius: 10px 10px 0 0 !important; }
 .leaflet-bar a:last-child  { border-radius: 0 0 10px 10px !important; }
 
+/* Hide zoom buttons on mobile — pinch to zoom instead */
+@media (max-width: 767px) {
+  .leaflet-control-zoom { display: none !important; }
+}
+
 /* ─── Attribution ────────────────────────────────────── */
 .leaflet-control-attribution {
   background: rgba(255,255,255,0.9) !important;

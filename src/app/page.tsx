@@ -12,6 +12,7 @@ import { Sidebar } from "@/components/sidebar/Sidebar";
 import { StationDetailModal } from "@/components/modals/StationDetailModal";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { RoutePlanner, type RouteSelection } from "@/components/route/RoutePlanner";
+import { LegendToggle } from "@/components/map/LegendToggle";
 import { stationsAlongRoute } from "@/lib/route";
 import { useMemo } from "react";
 import type { ChargingStation } from "@/types/station";
@@ -116,6 +117,9 @@ export default function Home() {
             <RoutePlanner active={route} resultCount={displayStations.length} onApply={setRoute} />
           </div>
         )}
+
+        {/* Charger legend toggle */}
+        {!loading && <LegendToggle />}
 
         {/* Station detail — desktop right panel / mobile full sheet */}
         {selectedStation && (
