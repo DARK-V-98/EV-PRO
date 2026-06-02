@@ -58,6 +58,11 @@ export function Sidebar({
           </div>
           <div className="flex items-center gap-1.5">
             <NotifyButton compact />
+            <Link href="/services"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors"
+            >
+              🔧 Services
+            </Link>
             <Link href="/submit"
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"
             >

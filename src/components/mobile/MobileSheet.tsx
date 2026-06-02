@@ -139,6 +139,12 @@ export function MobileSheet(props: MobileSheetProps) {
 
       {/* Floating Action Buttons */}
       <div className="fixed bottom-24 right-4 z-[900] flex flex-col gap-2">
+        <Link href="/services"
+          className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-slate-200 text-sky-600 text-lg"
+          style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.15)" }}
+          aria-label="EV services">
+          🔧
+        </Link>
         <Link href="/submit"
           className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-slate-200 text-green-600"
           style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.15)" }}>
