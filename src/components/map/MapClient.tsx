@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap, Marker, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
@@ -62,9 +62,10 @@ interface MapClientProps {
   onStationSelect: (station: ChargingStation) => void;
   selectedStation: ChargingStation | null;
   userLocation: UserLocation | null;
+  routeLine?: [number, number][] | null;
 }
 
-export default function MapClient({ stations, onStationSelect, selectedStation, userLocation }: MapClientProps) {
+export default function MapClient({ stations, onStationSelect, selectedStation, userLocation, routeLine }: MapClientProps) {
   return (
     <MapContainer
       center={SRI_LANKA_CENTER}
@@ -92,6 +93,13 @@ export default function MapClient({ stations, onStationSelect, selectedStation, 
           />
         ))}
       </MarkerClusterGroup>
+
+      {routeLine && (
+        <Polyline
+          positions={routeLine}
+          pathOptions={{ color: "#0ea5e9", weight: 4, opacity: 0.7, dashArray: "8 8" }}
+        />
+      )}
 
       {userLocation && <UserLocationMarker location={userLocation} />}
       <FlyToStation station={selectedStation} />

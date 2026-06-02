@@ -1,12 +1,21 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
-export interface UserLocation { lat: number; lng: number; accuracy?: number }
+export interface UserLocation { lat: number; lng: number; accuracy?: number; heading?: number | null }
 
 export function useGeolocation() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [tracking, setTracking] = useState(false);
+  const watchId = useRef<number | null>(null);
+
+  const errorMsg = (code: number) =>
+    ({
+      1: "Location access denied. Please allow location in your browser settings.",
+      2: "Could not detect your location. Check your GPS or internet connection.",
+      3: "Location request timed out. Please try again.",
+    }[code] ?? "Unknown location error.");
 
   const locate = useCallback(() => {
     if (!navigator.geolocation) {
@@ -22,30 +31,50 @@ export function useGeolocation() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: Math.round(pos.coords.accuracy),
+          heading: pos.coords.heading,
         });
         setLocating(false);
       },
-      (err) => {
-        const messages: Record<number, string> = {
-          1: "Location access denied. Please allow location in your browser settings.",
-          2: "Could not detect your location. Check your GPS or internet connection.",
-          3: "Location request timed out. Please try again.",
-        };
-        setLocationError(messages[err.code] ?? "Unknown location error.");
-        setLocating(false);
-      },
-      {
-        enableHighAccuracy: true,  // forces GPS, not IP/WiFi estimate
-        maximumAge: 0,             // never use cached position
-        timeout: 15000,
-      }
+      (err) => { setLocationError(errorMsg(err.code)); setLocating(false); },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
     );
   }, []);
 
-  const clearLocation = useCallback(() => {
-    setUserLocation(null);
-    setLocationError(null);
+  // Live tracking — continuously updates position (for navigation mode)
+  const startTracking = useCallback(() => {
+    if (!navigator.geolocation || watchId.current !== null) return;
+    setTracking(true);
+    setLocating(true);
+    watchId.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: Math.round(pos.coords.accuracy),
+          heading: pos.coords.heading,
+        });
+        setLocating(false);
+      },
+      (err) => { setLocationError(errorMsg(err.code)); setLocating(false); },
+      { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 }
+    );
   }, []);
 
-  return { userLocation, locating, locationError, locate, clearLocation };
+  const stopTracking = useCallback(() => {
+    if (watchId.current !== null) {
+      navigator.geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+    }
+    setTracking(false);
+  }, []);
+
+  const clearLocation = useCallback(() => {
+    stopTracking();
+    setUserLocation(null);
+    setLocationError(null);
+  }, [stopTracking]);
+
+  useEffect(() => () => { if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current); }, []);
+
+  return { userLocation, locating, locationError, tracking, locate, startTracking, stopTracking, clearLocation };
 }

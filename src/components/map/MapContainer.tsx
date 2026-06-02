@@ -13,6 +13,7 @@ interface MapContainerProps {
   onStationSelect: (station: ChargingStation) => void;
   selectedStation: ChargingStation | null;
   userLocation: UserLocation | null;
+  routeLine?: [number, number][] | null;
 }
 
 export default function MapContainer(props: MapContainerProps) {

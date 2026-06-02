@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getAllStations } from "@/lib/stations";
 import { getStationsFromFirestore } from "@/lib/firestoreStations";
 import { haversineKm, isOpenNow } from "@/lib/utils";
 import { getCarById } from "@/lib/cars";
+import { cacheStations, getCachedStations } from "@/lib/stationCache";
 import type { ChargingStation, Filters } from "@/types/station";
 import type { UserLocation } from "@/hooks/useGeolocation";
 
@@ -15,18 +16,46 @@ export function useStations(
   const [stations, setStations] = useState<ChargingStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
+
+  const load = useCallback(async () => {
+    const firebaseConfigured = Boolean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+    try {
+      const data = firebaseConfigured
+        ? await getStationsFromFirestore().catch(() => getAllStations())
+        : await getAllStations();
+      setStations(data);
+      cacheStations(data);          // save for offline use
+      setIsOffline(false);
+      setError(null);
+    } catch {
+      // Network failed — fall back to cache
+      const cached = getCachedStations();
+      if (cached && cached.length) {
+        setStations(cached);
+        setIsOffline(true);
+      } else {
+        setError("Failed to load stations");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const firebaseConfigured = Boolean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
-    const loader = firebaseConfigured
-      ? getStationsFromFirestore().catch(() => getAllStations())
-      : getAllStations();
+    // Show cached data instantly while fresh data loads
+    const cached = getCachedStations();
+    if (cached && cached.length) {
+      setStations(cached);
+      setLoading(false);
+    }
+    load();
+  }, [load]);
 
-    loader
-      .then(setStations)
-      .catch(() => setError("Failed to load stations"))
-      .finally(() => setLoading(false));
-  }, []);
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    await load();
+  }, [load]);
 
   const distanceMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -98,5 +127,5 @@ export function useStations(
     return result;
   }, [stations, filters, distanceMap, userLocation, favorites]);
 
-  return { stations, filteredStations, distanceMap, loading, error };
+  return { stations, filteredStations, distanceMap, loading, error, isOffline, refetch };
 }
