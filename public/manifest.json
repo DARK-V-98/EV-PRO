@@ -15,5 +15,28 @@
     { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
   ],
   "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Nearest charger",
+      "short_name": "Nearest",
+      "description": "Find the closest EV charger to you",
+      "url": "/?action=nearby",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My favorites",
+      "short_name": "Favorites",
+      "description": "Your saved charging stations",
+      "url": "/?action=favorites",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Add a station",
+      "short_name": "Add",
+      "description": "Report a new charging station",
+      "url": "/submit",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }

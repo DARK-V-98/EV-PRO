@@ -8,6 +8,7 @@ import { shareStation } from "@/lib/share";
 import { haptic } from "@/lib/haptics";
 import { StatusReporter } from "@/components/community/StatusReporter";
 import { ReviewsSection } from "@/components/community/ReviewsSection";
+import { TimerStarter } from "@/components/charging/TimerStarter";
 
 interface StationDetailModalProps {
   station: ChargingStation | null;
@@ -16,6 +17,7 @@ interface StationDetailModalProps {
   haversineKm?: number;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
+  onStartTimer?: (stationId: string, stationName: string, minutes: number) => void;
 }
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
@@ -43,7 +45,7 @@ function StatBox({ label, value, className = "" }: { label: string; value: strin
   );
 }
 
-export function StationDetailModal({ station, onClose, roadInfo, haversineKm, isFavorite, onToggleFavorite }: StationDetailModalProps) {
+export function StationDetailModal({ station, onClose, roadInfo, haversineKm, isFavorite, onToggleFavorite, onStartTimer }: StationDetailModalProps) {
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
 
   if (!station) return null;
@@ -134,6 +136,9 @@ export function StationDetailModal({ station, onClose, roadInfo, haversineKm, is
 
         {/* Live status reporter */}
         <StatusReporter stationId={station.id} />
+
+        {/* Charging timer */}
+        {onStartTimer && <TimerStarter station={station} onStart={onStartTimer} />}
 
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-2">

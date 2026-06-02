@@ -13,8 +13,10 @@ import { StationDetailModal } from "@/components/modals/StationDetailModal";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { RoutePlanner, type RouteSelection } from "@/components/route/RoutePlanner";
 import { LegendToggle } from "@/components/map/LegendToggle";
+import { ChargingTimerBar } from "@/components/charging/ChargingTimerBar";
+import { useChargingTimer } from "@/hooks/useChargingTimer";
 import { stationsAlongRoute } from "@/lib/route";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import type { ChargingStation } from "@/types/station";
 
 export default function Home() {
@@ -23,6 +25,7 @@ export default function Home() {
   const { filters, setFilter, toggleAmenity, clearFilters } = useFilters();
   const { userLocation, locating, locationError, tracking, locate, startTracking, stopTracking, clearLocation } = useGeolocation();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const chargeTimer = useChargingTimer();
   const { stations, filteredStations, distanceMap, loading, isOffline, refetch } = useStations(filters, userLocation, favorites);
   const { roadMap } = useRoadDistances(userLocation, stations, distanceMap);
 
@@ -48,6 +51,22 @@ export default function Home() {
     locate();
     setFilter("radiusKm", 25);
   }
+
+  // Handle PWA shortcut deep links (?action=nearby / favorites)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("action");
+    if (action === "nearby") {
+      locate();
+      setFilter("radiusKm", 25);
+    } else if (action === "favorites") {
+      setFilter("favoritesOnly", true);
+    }
+    if (action) {
+      window.history.replaceState({}, "", "/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleClearLocation() {
     clearLocation();
@@ -130,6 +149,18 @@ export default function Home() {
             haversineKm={distanceMap.get(selectedStation.id)}
             isFavorite={isFavorite(selectedStation.id)}
             onToggleFavorite={toggleFavorite}
+            onStartTimer={chargeTimer.start}
+          />
+        )}
+
+        {/* Active charging timer bar */}
+        {chargeTimer.timer && (
+          <ChargingTimerBar
+            timer={chargeTimer.timer}
+            remainingMs={chargeTimer.remainingMs}
+            progress={chargeTimer.progress}
+            done={chargeTimer.done}
+            onStop={chargeTimer.stop}
           />
         )}
 
