@@ -14,6 +14,9 @@ const defaultFilters: Filters = {
   verifiedOnly: false,
   amenities: [],
   radiusKm: null,
+  availableNow: false,
+  myCarId: "",
+  favoritesOnly: false,
 };
 
 export function useFilters() {

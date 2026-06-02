@@ -29,6 +29,9 @@ interface MobileSheetProps {
   locationError: string | null;
   onClearLocation: () => void;
   accuracyMeters?: number;
+  isFavorite: (id: string) => boolean;
+  onToggleFavorite: (id: string) => void;
+  favoritesCount: number;
   loading: boolean;
 }
 
@@ -63,7 +66,8 @@ export function MobileSheet(props: MobileSheetProps) {
 
   const { stations, allStations, filters, cities, selectedStation, distanceMap, roadMap,
     onFilterChange, toggleAmenity, onClearFilters, onStationSelect,
-    onLocate, locating, hasLocation, locationError, onClearLocation, accuracyMeters, loading } = props;
+    onLocate, locating, hasLocation, locationError, onClearLocation, accuracyMeters,
+    isFavorite, onToggleFavorite, loading } = props;
 
   return (
     <>
@@ -167,6 +171,8 @@ export function MobileSheet(props: MobileSheetProps) {
                       isSelected={selectedStation?.id === s.id}
                       haversineKm={distanceMap.get(s.id)}
                       roadInfo={roadMap.get(s.id)}
+                      isFavorite={isFavorite(s.id)}
+                      onToggleFavorite={onToggleFavorite}
                     />
                   ))
                 )}

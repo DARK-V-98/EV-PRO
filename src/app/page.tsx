@@ -5,6 +5,7 @@ import { useFilters } from "@/hooks/useFilters";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRoadDistances } from "@/hooks/useRoadDistances";
 import { useDailySync } from "@/hooks/useDailySync";
+import { useFavorites } from "@/hooks/useFavorites";
 import { getUniqueCities } from "@/lib/stations";
 import MapContainer from "@/components/map/MapContainer";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -17,7 +18,8 @@ export default function Home() {
 
   const { filters, setFilter, toggleAmenity, clearFilters } = useFilters();
   const { userLocation, locating, locationError, locate, clearLocation } = useGeolocation();
-  const { stations, filteredStations, distanceMap, loading } = useStations(filters, userLocation);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { stations, filteredStations, distanceMap, loading } = useStations(filters, userLocation, favorites);
   const { roadMap } = useRoadDistances(userLocation, stations, distanceMap);
 
   const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null);
@@ -45,6 +47,8 @@ export default function Home() {
     onLocate: handleLocate, locating, hasLocation: !!userLocation,
     locationError, onClearLocation: handleClearLocation,
     accuracyMeters: userLocation?.accuracy,
+    isFavorite, onToggleFavorite: toggleFavorite,
+    favoritesCount: favorites.size,
   };
 
   return (
@@ -95,6 +99,8 @@ export default function Home() {
             onClose={() => setSelectedStation(null)}
             roadInfo={roadMap.get(selectedStation.id)}
             haversineKm={distanceMap.get(selectedStation.id)}
+            isFavorite={isFavorite(selectedStation.id)}
+            onToggleFavorite={toggleFavorite}
           />
         )}
 

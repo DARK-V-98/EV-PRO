@@ -3,6 +3,7 @@ import { useState } from "react";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import type { Filters, ChargerType, ConnectorType, SpeedTier } from "@/types/station";
 import { SL_PROVINCES, AMENITY_OPTIONS } from "@/types/station";
+import { CAR_MODELS, saveMyCar } from "@/lib/cars";
 
 const CHARGER_TYPES: ChargerType[] = ["AC", "DC", "AC+DC"];
 const CONNECTOR_TYPES: ConnectorType[] = ["Type 1", "Type 2", "CCS1", "CCS2", "CHAdeMO", "GB/T", "Tesla"];
@@ -52,12 +53,13 @@ function Pill({ active, onClick, children, color = "green" }: { active: boolean;
 }
 
 export function FilterPanel({ filters, cities, onFilterChange, toggleAmenity, onClear }: FilterPanelProps) {
-  const [open, setOpen] = useState({ location: true, charger: true, speed: false, options: false, amenities: false });
+  const [open, setOpen] = useState({ mycar: false, location: true, charger: true, speed: false, options: false, amenities: false });
   const toggle = (k: keyof typeof open) => setOpen((p) => ({ ...p, [k]: !p[k] }));
 
   const chargerColors: Record<ChargerType, string> = { AC: "green", DC: "sky", "AC+DC": "violet" };
   const hasActive = filters.city || filters.province || filters.chargerType || filters.connector ||
-    filters.speedTier || filters.isFree || filters.is24Hours || filters.verifiedOnly || filters.amenities.length > 0;
+    filters.speedTier || filters.isFree || filters.is24Hours || filters.verifiedOnly ||
+    filters.amenities.length > 0 || filters.availableNow || filters.myCarId || filters.favoritesOnly;
 
   return (
     <div className="px-4 py-2 border-b border-slate-100 bg-white">
@@ -71,6 +73,23 @@ export function FilterPanel({ filters, cities, onFilterChange, toggleAmenity, on
           </button>
         )}
       </div>
+
+      <Section title="🚗 My Car" open={open.mycar} onToggle={() => toggle("mycar")}>
+        <p className="text-xs text-slate-400 mb-1">Show only chargers your car can use</p>
+        <select
+          value={filters.myCarId}
+          onChange={(e) => { onFilterChange("myCarId", e.target.value); saveMyCar(e.target.value); }}
+          className={selectCls}
+        >
+          <option value="">Any car</option>
+          {CAR_MODELS.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        {filters.myCarId && (
+          <p className="text-xs text-green-600 mt-1">
+            ✓ Filtering chargers compatible with your car
+          </p>
+        )}
+      </Section>
 
       <Section title="Location" open={open.location} onToggle={() => toggle("location")}>
         <select value={filters.city} onChange={(e) => onFilterChange("city", e.target.value)} className={selectCls}>
@@ -115,6 +134,8 @@ export function FilterPanel({ filters, cities, onFilterChange, toggleAmenity, on
 
       <Section title="Options" open={open.options} onToggle={() => toggle("options")}>
         {([
+          { key: "availableNow" as const, label: "🟢 Open now" },
+          { key: "favoritesOnly" as const, label: "⭐ My favorites" },
           { key: "isFree" as const, label: "Free charging only" },
           { key: "is24Hours" as const, label: "Open 24 hours" },
           { key: "verifiedOnly" as const, label: "Verified only" },

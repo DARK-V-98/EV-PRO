@@ -1,5 +1,5 @@
 "use client";
-import { Clock, MapPin, Zap, ChevronRight, Car } from "lucide-react";
+import { Clock, MapPin, Zap, Car, Star } from "lucide-react";
 import type { ChargingStation } from "@/types/station";
 import { ChargerBadge, SpeedBadge } from "@/components/ui/Badge";
 import { formatDistance } from "@/lib/utils";
@@ -11,13 +11,17 @@ interface StationCardProps {
   isSelected: boolean;
   haversineKm?: number;
   roadInfo?: RoadInfo;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
-export function StationCard({ station, onClick, isSelected, haversineKm, roadInfo }: StationCardProps) {
+export function StationCard({ station, onClick, isSelected, haversineKm, roadInfo, isFavorite, onToggleFavorite }: StationCardProps) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`w-full text-left px-4 py-3.5 transition-all group border-b border-slate-100 ${
+      role="button"
+      tabIndex={0}
+      className={`w-full text-left px-4 py-3.5 transition-all group border-b border-slate-100 cursor-pointer ${
         isSelected ? "bg-green-50 border-l-4 border-l-green-500" : "bg-white hover:bg-slate-50 border-l-4 border-l-transparent"
       }`}
     >
@@ -25,7 +29,15 @@ export function StationCard({ station, onClick, isSelected, haversineKm, roadInf
         <p className="text-sm font-semibold text-slate-800 leading-snug" style={{ fontFamily: "var(--font-heading)" }}>
           {station.name}
         </p>
-        <ChevronRight className={`w-3.5 h-3.5 shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5 ${isSelected ? "text-green-500" : "text-slate-300"}`} />
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(station.id); }}
+            className="shrink-0 -mt-0.5 -mr-1 p-1 rounded-full hover:bg-amber-50 transition-colors"
+            aria-label={isFavorite ? "Remove favorite" : "Add favorite"}
+          >
+            <Star className={`w-4 h-4 transition-all ${isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-1.5 mb-2 flex-wrap">
@@ -74,8 +86,8 @@ export function StationCard({ station, onClick, isSelected, haversineKm, roadInf
       }
 
       {!station.verified && (
-        <span className="absolute top-3.5 right-8 text-xs text-amber-500">Unverified</span>
+        <span className="text-xs text-amber-500">Unverified</span>
       )}
-    </button>
+    </div>
   );
 }

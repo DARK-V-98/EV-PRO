@@ -26,12 +26,16 @@ interface SidebarProps {
   locationError: string | null;
   onClearLocation: () => void;
   accuracyMeters?: number;
+  isFavorite: (id: string) => boolean;
+  onToggleFavorite: (id: string) => void;
+  favoritesCount: number;
 }
 
 export function Sidebar({
   stations, allStations, filters, cities, selectedStation, distanceMap, roadMap,
   onFilterChange, toggleAmenity, onClearFilters, onStationSelect,
   onLocate, locating, hasLocation, locationError, onClearLocation, accuracyMeters,
+  isFavorite, onToggleFavorite,
 }: SidebarProps) {
   return (
     <aside className="flex flex-col h-full w-96 shrink-0 bg-white" style={{ borderRight: "1px solid var(--border)" }}>
@@ -101,6 +105,8 @@ export function Sidebar({
                 isSelected={selectedStation?.id === s.id}
                 haversineKm={distanceMap.get(s.id)}
                 roadInfo={roadMap.get(s.id)}
+                isFavorite={isFavorite(s.id)}
+                onToggleFavorite={onToggleFavorite}
               />
             ))}
           </div>

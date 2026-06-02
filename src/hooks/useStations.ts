@@ -2,11 +2,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { getAllStations } from "@/lib/stations";
 import { getStationsFromFirestore } from "@/lib/firestoreStations";
-import { haversineKm } from "@/lib/utils";
+import { haversineKm, isOpenNow } from "@/lib/utils";
+import { getCarById } from "@/lib/cars";
 import type { ChargingStation, Filters } from "@/types/station";
 import type { UserLocation } from "@/hooks/useGeolocation";
 
-export function useStations(filters: Filters, userLocation: UserLocation | null = null) {
+export function useStations(
+  filters: Filters,
+  userLocation: UserLocation | null = null,
+  favorites: Set<string> = new Set()
+) {
   const [stations, setStations] = useState<ChargingStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +69,21 @@ export function useStations(filters: Filters, userLocation: UserLocation | null 
       const dist = distanceMap.get(s.id);
       const matchesRadius = !filters.radiusKm || dist === undefined || dist <= filters.radiusKm;
 
+      const matchesAvailable = !filters.availableNow || isOpenNow(s.hours);
+      const matchesFavorites = !filters.favoritesOnly || favorites.has(s.id);
+
+      const matchesCar = (() => {
+        if (!filters.myCarId) return true;
+        const car = getCarById(filters.myCarId);
+        if (!car) return true;
+        return car.connectors.some((c) => s.connectors.includes(c));
+      })();
+
       return (
         matchesCity && matchesProvince && matchesType && matchesConnector &&
         matchesSearch && matchesSpeed && matchesCost && matchesHours &&
-        matchesVerified && matchesAmenities && matchesRadius
+        matchesVerified && matchesAmenities && matchesRadius &&
+        matchesAvailable && matchesFavorites && matchesCar
       );
     });
 
@@ -80,7 +96,7 @@ export function useStations(filters: Filters, userLocation: UserLocation | null 
     }
 
     return result;
-  }, [stations, filters, distanceMap, userLocation]);
+  }, [stations, filters, distanceMap, userLocation, favorites]);
 
   return { stations, filteredStations, distanceMap, loading, error };
 }

@@ -59,4 +59,7 @@ export interface Filters {
   verifiedOnly: boolean;
   amenities: string[];
   radiusKm: RadiusKm;
+  availableNow: boolean;
+  myCarId: string;
+  favoritesOnly: boolean;
 }

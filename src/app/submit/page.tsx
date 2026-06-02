@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import { whatsappReportLink } from "@/lib/config";
 
 const schema = z.object({
   name: z.string().min(3, "Station name required"),
@@ -82,7 +83,32 @@ export default function SubmitPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto p-4 space-y-6 pb-16">
+      <div className="max-w-2xl mx-auto px-4 pt-4">
+        <a
+          href={whatsappReportLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-200 hover:bg-green-100 transition-colors"
+        >
+          <span className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-lg shrink-0">
+            {/* WhatsApp glyph */}
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.3A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1A7.9 7.9 0 0 0 12 19.9a7.94 7.94 0 0 0 5.6-13.6Zm-5.6 12.2a6.6 6.6 0 0 1-3.4-.9l-.24-.15-2.5.66.67-2.43-.16-.25a6.6 6.6 0 1 1 5.63 3.06Zm3.6-4.95c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.45.1-.51.64-.63.78-.23.15-.43.05a5.4 5.4 0 0 1-1.6-1 6 6 0 0 1-1.1-1.37c-.12-.2 0-.31.09-.41s.2-.23.3-.35a1.4 1.4 0 0 0 .2-.33.37.37 0 0 0 0-.35c0-.1-.45-1.08-.62-1.48s-.32-.33-.45-.34h-.38a.73.73 0 0 0-.53.25 2.23 2.23 0 0 0-.69 1.65 3.86 3.86 0 0 0 .81 2.05 8.86 8.86 0 0 0 3.39 3 11 11 0 0 0 1.13.42 2.72 2.72 0 0 0 1.25.08 2.04 2.04 0 0 0 1.34-.94 1.66 1.66 0 0 0 .12-.94c-.05-.09-.18-.14-.38-.24Z"/></svg>
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-green-800 text-sm">Report via WhatsApp</p>
+            <p className="text-xs text-green-600">Fastest way — just send us the location</p>
+          </div>
+          <span className="text-green-600">→</span>
+        </a>
+
+        <div className="flex items-center gap-3 my-4">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-xs text-slate-400">or fill the form</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl mx-auto p-4 pt-0 space-y-6 pb-16">
         <Section title="Station Info">
           <Field label="Station Name *" error={errors.name?.message}>
             <input {...register("name")} placeholder="e.g. LECO EV Station - Colombo Fort" className={inputClass} />

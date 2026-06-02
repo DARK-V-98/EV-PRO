@@ -1,14 +1,20 @@
 "use client";
-import { X, MapPin, Clock, Zap, Phone, Globe, Wifi, Car, Coffee, Bath, Navigation } from "lucide-react";
+import { useState } from "react";
+import { X, MapPin, Clock, Zap, Phone, Globe, Wifi, Car, Coffee, Bath, Navigation, Star, Share2, Check } from "lucide-react";
 import type { ChargingStation } from "@/types/station";
 import { ChargerBadge, SpeedBadge, VerifiedBadge } from "@/components/ui/Badge";
 import type { RoadInfo } from "@/lib/routing";
+import { shareStation } from "@/lib/share";
+import { haptic } from "@/lib/haptics";
+import { StatusReporter } from "@/components/community/StatusReporter";
 
 interface StationDetailModalProps {
   station: ChargingStation | null;
   onClose: () => void;
   roadInfo?: RoadInfo;
   haversineKm?: number;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
@@ -36,10 +42,21 @@ function StatBox({ label, value, className = "" }: { label: string; value: strin
   );
 }
 
-export function StationDetailModal({ station, onClose, roadInfo, haversineKm }: StationDetailModalProps) {
+export function StationDetailModal({ station, onClose, roadInfo, haversineKm, isFavorite, onToggleFavorite }: StationDetailModalProps) {
+  const [shareState, setShareState] = useState<"idle" | "copied">("idle");
+
   if (!station) return null;
 
   const speedCls = station.speedKw > 50 ? "text-orange-600" : station.speedKw > 22 ? "text-sky-600" : "text-slate-700";
+
+  async function handleShare() {
+    if (!station) return;
+    const result = await shareStation(station);
+    if (result === "copied") {
+      setShareState("copied");
+      setTimeout(() => setShareState("idle"), 2000);
+    }
+  }
 
   return (
     <div className="absolute inset-0 md:inset-y-0 md:left-auto md:right-0 flex flex-col z-[1000] bg-white fade-in"
@@ -61,11 +78,28 @@ export function StationDetailModal({ station, onClose, roadInfo, haversineKm }: 
               <MapPin className="w-3 h-3" />{station.city}, {station.province}
             </p>
           </div>
-          <button onClick={onClose}
-            className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors">
-            <X className="w-4 h-4 text-slate-500" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onToggleFavorite && (
+              <button onClick={() => onToggleFavorite(station.id)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-amber-50 transition-colors"
+                aria-label="Favorite">
+                <Star className={`w-4 h-4 transition-all ${isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-500"}`} />
+              </button>
+            )}
+            <button onClick={handleShare}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-green-50 transition-colors"
+              aria-label="Share">
+              {shareState === "copied"
+                ? <Check className="w-4 h-4 text-green-600" />
+                : <Share2 className="w-4 h-4 text-slate-500" />}
+            </button>
+            <button onClick={onClose}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors">
+              <X className="w-4 h-4 text-slate-500" />
+            </button>
+          </div>
         </div>
+        {shareState === "copied" && <p className="text-xs text-green-600 mt-2">✓ Link copied to clipboard</p>}
       </div>
 
       {/* Body */}
@@ -96,6 +130,9 @@ export function StationDetailModal({ station, onClose, roadInfo, haversineKm }: 
             </div>
           </div>
         )}
+
+        {/* Live status reporter */}
+        <StatusReporter stationId={station.id} />
 
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-2">
