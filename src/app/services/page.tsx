@@ -7,8 +7,10 @@ import ServicesMapContainer from "@/components/services/ServicesMapContainer";
 import { getServices, getServiceCities } from "@/lib/services";
 import { SERVICE_CATEGORIES, type ServicePlace, type ServiceCategory, type ServiceFilters } from "@/types/service";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useDailySync } from "@/hooks/useDailySync";
 
 export default function ServicesPage() {
+  useDailySync();
   const [places, setPlaces] = useState<ServicePlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ServiceFilters>({ category: "", city: "", searchQuery: "" });

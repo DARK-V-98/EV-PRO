@@ -1,8 +1,6 @@
 {
   "crons": [
-    {
-      "path": "/api/sync-stations",
-      "schedule": "1 0 * * *"
-    }
+    { "path": "/api/auto-sync", "schedule": "1 0 * * *" },
+    { "path": "/api/auto-sync-services", "schedule": "5 0 * * *" }
   ]
 }
