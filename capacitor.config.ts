@@ -10,7 +10,8 @@ const config: CapacitorConfig = {
     // API routes (daily sync) and the SAME Firebase database automatically.
     // Change this to your deployed domain. For local testing on a device on the
     // same Wi-Fi, use your PC's LAN IP, e.g. "http://192.168.8.207:3000".
-    url: "https://evpro.esystemlk.com",
+    // Open straight into the map app (not the marketing landing) on launch.
+    url: "https://evpro.esystemlk.com/map",
     cleartext: false,
   },
   android: {
