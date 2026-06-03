@@ -169,10 +169,12 @@ export default function Home() {
           <div className="hidden md:flex absolute top-4 left-1/2 -translate-x-1/2 z-[999] items-center gap-3 px-4 py-2 rounded-2xl text-xs bg-white border border-slate-200"
             style={{ boxShadow: "0 2px 16px rgba(15,23,42,0.1)" }}>
             <span className="text-slate-600"><strong className="text-green-600">{displayStations.length}</strong> stations on map</span>
-            <span className="text-slate-200">|</span>
-            {isOffline
-              ? <span className="text-amber-600">⚠ Offline — showing saved data</span>
-              : <span className="text-slate-400">Syncs daily 12:01 AM</span>}
+            {isOffline && (
+              <>
+                <span className="text-slate-200">|</span>
+                <span className="text-amber-600">⚠ Offline — showing saved data</span>
+              </>
+            )}
           </div>
         )}
       </main>
