@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline, ZoomControl, LayersControl } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
@@ -77,12 +77,34 @@ export default function MapClient({ stations, onStationSelect, selectedStation, 
       className="h-full w-full"
     >
       <ZoomControl position="topright" />
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
-        maxZoom={20}
-      />
+
+      <LayersControl position="topright">
+        <LayersControl.BaseLayer checked name="🗺️ Map">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            subdomains="abcd"
+            maxZoom={20}
+            className="map-vivid"
+          />
+        </LayersControl.BaseLayer>
+
+        <LayersControl.BaseLayer name="🛰️ Satellite">
+          <TileLayer
+            attribution='Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19}
+          />
+        </LayersControl.BaseLayer>
+
+        <LayersControl.BaseLayer name="🏔️ Terrain">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+            maxZoom={17}
+          />
+        </LayersControl.BaseLayer>
+      </LayersControl>
 
       <MarkerClusterGroup chunkedLoading>
         {stations.map((station) => (

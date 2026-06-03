@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, ZoomControl, LayersControl } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
@@ -30,10 +30,20 @@ export default function ServicesMapClient({ places, onSelect, selected }: Props)
     <MapContainer center={CENTER} zoom={8} minZoom={7} maxZoom={18}
       maxBounds={BOUNDS} maxBoundsViscosity={1.0} zoomControl={false} className="h-full w-full">
       <ZoomControl position="topright" />
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        subdomains="abcd" maxZoom={20} />
+      <LayersControl position="topright">
+        <LayersControl.BaseLayer checked name="🗺️ Map">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            subdomains="abcd" maxZoom={20} className="map-vivid" />
+        </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="🛰️ Satellite">
+          <TileLayer
+            attribution='Tiles &copy; Esri'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maxZoom={19} />
+        </LayersControl.BaseLayer>
+      </LayersControl>
       <MarkerClusterGroup chunkedLoading>
         {places.map((p) => (
           <ServiceMarker key={p.id} place={p} onSelect={onSelect} isSelected={selected?.id === p.id} />

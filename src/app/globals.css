@@ -140,6 +140,28 @@ select option {
   .leaflet-control-zoom { display: none !important; }
 }
 
+/* Make the OSM street map more vivid / Google-like */
+.map-vivid {
+  filter: saturate(1.18) contrast(1.04) brightness(1.02);
+}
+
+/* Layer switcher styling */
+.leaflet-control-layers {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(15,23,42,0.1) !important;
+  padding: 4px !important;
+}
+.leaflet-control-layers-expanded {
+  padding: 10px 14px !important;
+  font-family: var(--font-body), sans-serif;
+  font-size: 13px;
+  color: #334155;
+}
+.leaflet-control-layers-toggle {
+  border-radius: 10px !important;
+}
+
 /* ─── Attribution ────────────────────────────────────── */
 .leaflet-control-attribution {
   background: rgba(255,255,255,0.9) !important;
