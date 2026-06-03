@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Zap } from "lucide-react";
+import { Plus, Zap, Wrench } from "lucide-react";
 import type { ChargingStation, Filters, RadiusKm } from "@/types/station";
 import type { RoadInfo } from "@/lib/routing";
 import { SearchBar } from "./SearchBar";
@@ -61,7 +61,7 @@ export function Sidebar({
             <Link href="/services"
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors"
             >
-              🔧 Services
+              <Wrench className="w-3.5 h-3.5" /> Services
             </Link>
             <Link href="/submit"
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 transition-colors"

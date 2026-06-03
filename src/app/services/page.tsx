@@ -2,12 +2,20 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, X, MapPin, Phone, Globe, Zap, ChevronRight, ArrowLeft } from "lucide-react";
+import { Search, X, MapPin, Phone, Globe, Zap, ChevronRight, ArrowLeft, Building2, Package, Wrench, Settings } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import ServicesMapContainer from "@/components/services/ServicesMapContainer";
 import { getServices, getServiceCities } from "@/lib/services";
 import { SERVICE_CATEGORIES, type ServicePlace, type ServiceCategory, type ServiceFilters } from "@/types/service";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDailySync } from "@/hooks/useDailySync";
+
+const CAT_ICONS: Record<ServiceCategory, LucideIcon> = {
+  showroom: Building2,
+  spareparts: Package,
+  garage: Wrench,
+  repair: Settings,
+};
 
 export default function ServicesPage() {
   useDailySync();
@@ -70,11 +78,12 @@ export default function ServicesPage() {
         <div className="flex gap-1.5 flex-wrap mt-3">
           {SERVICE_CATEGORIES.map((c) => {
             const active = filters.category === c.value;
+            const Icon = CAT_ICONS[c.value];
             return (
               <button key={c.value} onClick={() => setCat(c.value)}
-                className="text-xs px-2.5 py-1.5 rounded-full border font-medium transition-all"
+                className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full border font-medium transition-all"
                 style={active ? { background: c.color, borderColor: c.color, color: "#fff" } : { background: "#fff", borderColor: "#e2e8f0", color: "#64748b" }}>
-                {c.emoji} {c.label}
+                <Icon className="w-3.5 h-3.5" /> {c.label}
               </button>
             );
           })}
@@ -102,7 +111,9 @@ export default function ServicesPage() {
                 <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0 mt-0.5" />
               </div>
               <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.color + "1a", color: cat.color }}>{cat.emoji} {cat.label.slice(0, -1)}</span>
+                <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.color + "1a", color: cat.color }}>
+                  {(() => { const I = CAT_ICONS[cat.value]; return <I className="w-3 h-3" />; })()} {cat.label.slice(0, -1)}
+                </span>
                 <span className="text-xs text-slate-400 flex items-center gap-0.5"><MapPin className="w-3 h-3" />{p.city}</span>
               </div>
               {p.brands && <p className="text-xs text-slate-500 mt-1">{p.brands.join(", ")}</p>}
@@ -163,7 +174,9 @@ function ServiceDetail({ place, onClose }: { place: ServicePlace; onClose: () =>
       style={{ width: "100%", maxWidth: "420px", borderLeft: "1px solid #e2e8f0", boxShadow: "-4px 0 32px rgba(15,23,42,0.1)" }}>
       <div className="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
         <div>
-          <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.color + "1a", color: cat.color }}>{cat.emoji} {cat.label.slice(0, -1)}</span>
+          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.color + "1a", color: cat.color }}>
+            {(() => { const I = CAT_ICONS[cat.value]; return <I className="w-3 h-3" />; })()} {cat.label.slice(0, -1)}
+          </span>
           <h2 className="text-base font-bold text-slate-900 mt-2" style={{ fontFamily: "var(--font-heading)" }}>{place.name}</h2>
           <p className="text-xs text-slate-400 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{place.city}, {place.province}</p>
         </div>

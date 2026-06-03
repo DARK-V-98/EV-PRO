@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
-import { Search, SlidersHorizontal, LocateFixed, Plus, ChevronDown, Loader2, Navigation, WifiOff, RefreshCw } from "lucide-react";
+import { Search, SlidersHorizontal, LocateFixed, Plus, ChevronDown, Loader2, Navigation, WifiOff, RefreshCw, Wrench } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import type { ChargingStation, Filters, RadiusKm } from "@/types/station";
@@ -140,10 +140,10 @@ export function MobileSheet(props: MobileSheetProps) {
       {/* Floating Action Buttons */}
       <div className="fixed bottom-24 right-4 z-[900] flex flex-col gap-2">
         <Link href="/services"
-          className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-slate-200 text-sky-600 text-lg"
+          className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-slate-200 text-sky-600"
           style={{ boxShadow: "0 4px 16px rgba(15,23,42,0.15)" }}
           aria-label="EV services">
-          🔧
+          <Wrench className="w-5 h-5" />
         </Link>
         <Link href="/submit"
           className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-slate-200 text-green-600"

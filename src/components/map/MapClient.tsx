@@ -1,6 +1,6 @@
 "use client";
-import { useEffect } from "react";
-import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline, ZoomControl, LayersControl } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, useMap, Marker, Circle, Polyline, ZoomControl } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
@@ -9,6 +9,7 @@ import L from "leaflet";
 import type { ChargingStation, ChargerType } from "@/types/station";
 import type { UserLocation } from "@/hooks/useGeolocation";
 import { StationMarker } from "./StationMarker";
+import { MapStyleSwitcher, TILE_STYLES, type MapStyle } from "./MapStyleSwitcher";
 
 const SRI_LANKA_CENTER: [number, number] = [7.8731, 80.7718];
 const SRI_LANKA_BOUNDS: [[number, number], [number, number]] = [[5.7, 79.5], [10.0, 82.0]];
@@ -65,68 +66,56 @@ interface MapClientProps {
 }
 
 export default function MapClient({ stations, onStationSelect, selectedStation, userLocation, routeLine }: MapClientProps) {
+  const [style, setStyle] = useState<MapStyle>("map");
+  const tile = TILE_STYLES[style];
+
   return (
-    <MapContainer
-      center={SRI_LANKA_CENTER}
-      zoom={8}
-      minZoom={7}
-      maxZoom={18}
-      maxBounds={SRI_LANKA_BOUNDS}
-      maxBoundsViscosity={1.0}
-      zoomControl={false}
-      className="h-full w-full"
-    >
-      <ZoomControl position="topright" />
+    <div className="relative h-full w-full">
+      <MapContainer
+        center={SRI_LANKA_CENTER}
+        zoom={8}
+        minZoom={7}
+        maxZoom={18}
+        maxBounds={SRI_LANKA_BOUNDS}
+        maxBoundsViscosity={1.0}
+        zoomControl={false}
+        className="h-full w-full"
+      >
+        <ZoomControl position="topright" />
 
-      <LayersControl position="topright">
-        <LayersControl.BaseLayer checked name="🗺️ Map">
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            subdomains="abcd"
-            maxZoom={20}
-            className="map-vivid"
-          />
-        </LayersControl.BaseLayer>
-
-        <LayersControl.BaseLayer name="🛰️ Satellite">
-          <TileLayer
-            attribution='Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            maxZoom={19}
-          />
-        </LayersControl.BaseLayer>
-
-        <LayersControl.BaseLayer name="🏔️ Terrain">
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            maxZoom={17}
-          />
-        </LayersControl.BaseLayer>
-      </LayersControl>
-
-      <MarkerClusterGroup chunkedLoading>
-        {stations.map((station) => (
-          <StationMarker
-            key={station.id}
-            station={station}
-            onSelect={onStationSelect}
-            isSelected={selectedStation?.id === station.id}
-          />
-        ))}
-      </MarkerClusterGroup>
-
-      {routeLine && (
-        <Polyline
-          positions={routeLine}
-          pathOptions={{ color: "#0ea5e9", weight: 4, opacity: 0.7, dashArray: "8 8" }}
+        <TileLayer
+          key={style}
+          attribution={tile.attribution}
+          url={tile.url}
+          subdomains={tile.subdomains ?? "abc"}
+          maxZoom={tile.maxZoom}
+          className={tile.className}
         />
-      )}
 
-      {userLocation && <UserLocationMarker location={userLocation} />}
-      <FlyToStation station={selectedStation} />
-      <FlyToUser location={userLocation} />
-    </MapContainer>
+        <MarkerClusterGroup chunkedLoading>
+          {stations.map((station) => (
+            <StationMarker
+              key={station.id}
+              station={station}
+              onSelect={onStationSelect}
+              isSelected={selectedStation?.id === station.id}
+            />
+          ))}
+        </MarkerClusterGroup>
+
+        {routeLine && (
+          <Polyline
+            positions={routeLine}
+            pathOptions={{ color: "#0ea5e9", weight: 4, opacity: 0.7, dashArray: "8 8" }}
+          />
+        )}
+
+        {userLocation && <UserLocationMarker location={userLocation} />}
+        <FlyToStation station={selectedStation} />
+        <FlyToUser location={userLocation} />
+      </MapContainer>
+
+      <MapStyleSwitcher style={style} onChange={setStyle} />
+    </div>
   );
 }
