@@ -18,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${BASE}/map`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${BASE}/services`,
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -30,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     ...cities.map((city) => ({
-      url: `${BASE}/?city=${city}`,
+      url: `${BASE}/map?city=${city}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,

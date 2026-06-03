@@ -171,7 +171,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="rating" content="general" />
         <link rel="canonical" href={BASE_URL} />
       </head>
-      <body className="h-full antialiased overflow-hidden">
+      <body className="h-full antialiased">
         <I18nProvider>
           <PWARegister />
           <JsonLd />

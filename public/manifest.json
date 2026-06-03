@@ -2,7 +2,7 @@
   "name": "EV PRO",
   "short_name": "EV PRO",
   "description": "Find EV charging stations across Sri Lanka",
-  "start_url": "/",
+  "start_url": "/map",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#16a34a",
@@ -21,14 +21,14 @@
       "name": "Nearest charger",
       "short_name": "Nearest",
       "description": "Find the closest EV charger to you",
-      "url": "/?action=nearby",
+      "url": "/map?action=nearby",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "My favorites",
       "short_name": "Favorites",
       "description": "Your saved charging stations",
-      "url": "/?action=favorites",
+      "url": "/map?action=favorites",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {

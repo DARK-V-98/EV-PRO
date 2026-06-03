@@ -1,193 +1,182 @@
-"use client";
-import { useState, useRef, useCallback } from "react";
-import { useStations } from "@/hooks/useStations";
-import { useFilters } from "@/hooks/useFilters";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { useRoadDistances } from "@/hooks/useRoadDistances";
-import { useDailySync } from "@/hooks/useDailySync";
-import { useFavorites } from "@/hooks/useFavorites";
-import { getUniqueCities } from "@/lib/stations";
-import MapContainer from "@/components/map/MapContainer";
-import { Sidebar } from "@/components/sidebar/Sidebar";
-import { StationDetailModal } from "@/components/modals/StationDetailModal";
-import { MobileSheet } from "@/components/mobile/MobileSheet";
-import { RoutePlanner, type RouteSelection } from "@/components/route/RoutePlanner";
-import { LegendToggle } from "@/components/map/LegendToggle";
-import { ChargingTimerBar } from "@/components/charging/ChargingTimerBar";
-import { useChargingTimer } from "@/hooks/useChargingTimer";
-import { stationsAlongRoute } from "@/lib/route";
-import { useMemo, useEffect } from "react";
-import type { ChargingStation } from "@/types/station";
+import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
+import {
+  Zap, Wrench, MapPin, Navigation, LocateFixed, Timer, WifiOff, Languages,
+  Filter, Star, ThumbsUp, Route, Building2, Package, Settings, ArrowRight, Smartphone,
+} from "lucide-react";
+import { LiveStats } from "@/components/landing/LiveStats";
+import { MapPreview } from "@/components/landing/MapPreview";
 
-export default function Home() {
-  useDailySync();
+export const metadata: Metadata = {
+  title: "EV PRO — EV Charging Places & Services in Sri Lanka",
+  description:
+    "EV PRO is Sri Lanka's complete electric vehicle app: find EV charging stations, showrooms, spare parts, garages and repair shops on one live map. Free, works offline, 300+ chargers and 800+ services across Colombo, Kandy, Galle and every city.",
+  alternates: { canonical: "https://evpro.esystemlk.com" },
+};
 
-  const { filters, setFilter, toggleAmenity, clearFilters } = useFilters();
-  const { userLocation, locating, locationError, tracking, locate, startTracking, stopTracking, clearLocation } = useGeolocation();
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const chargeTimer = useChargingTimer();
-  const { stations, filteredStations, distanceMap, loading, isOffline, refetch } = useStations(filters, userLocation, favorites);
-  const { roadMap } = useRoadDistances(userLocation, stations, distanceMap);
+const FEATURES = [
+  { icon: Zap, title: "Live Charging Map", desc: "300+ EV charging stations across Sri Lanka, updated daily." },
+  { icon: LocateFixed, title: "Near Me", desc: "Find the closest charger to your exact GPS location instantly." },
+  { icon: Navigation, title: "Road Distance & Time", desc: "Real driving distance and ETA to any charger, not just straight-line." },
+  { icon: Filter, title: "Advanced Filters", desc: "Filter by charger type, connector, speed, free, 24h, your car & more." },
+  { icon: Route, title: "Trip Route Planner", desc: "Plan a trip and see every charger along your route corridor." },
+  { icon: Timer, title: "Charging Timer", desc: "Smart charge-time estimate for your car + alert when it's done." },
+  { icon: ThumbsUp, title: "Live Status", desc: "Community reports show which chargers are actually working." },
+  { icon: Star, title: "Reviews & Favorites", desc: "Rate stations, add photos, and save your go-to chargers." },
+  { icon: Wrench, title: "EV Services", desc: "Showrooms, spare parts, garages & repair shops on a second map." },
+  { icon: WifiOff, title: "Works Offline", desc: "Saved data means the map works even with no signal." },
+  { icon: Languages, title: "3 Languages", desc: "English, සිංහල and தமிழ் — switch anytime." },
+  { icon: Smartphone, title: "Install as App", desc: "Add to your home screen — Android app & PWA, same data." },
+];
 
-  const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null);
-  const [route, setRoute] = useState<RouteSelection | null>(null);
-  const cities = getUniqueCities(stations);
+const SERVICE_TYPES = [
+  { icon: Building2, label: "Showrooms", color: "text-sky-600 bg-sky-50" },
+  { icon: Package, label: "Spare Parts", color: "text-orange-600 bg-orange-50" },
+  { icon: Wrench, label: "Garages", color: "text-violet-600 bg-violet-50" },
+  { icon: Settings, label: "Repair Shops", color: "text-green-600 bg-green-50" },
+];
 
-  // When a route is active, show only chargers along the corridor
-  const displayStations = useMemo(() => {
-    if (!route) return filteredStations;
-    return stationsAlongRoute(filteredStations, route.origin, route.dest, route.corridorKm);
-  }, [route, filteredStations]);
+const CITIES = ["Colombo", "Kandy", "Galle", "Negombo", "Matara", "Jaffna", "Kurunegala",
+  "Anuradhapura", "Trincomalee", "Batticaloa", "Hambantota", "Nuwara Eliya", "Dambulla", "Ratnapura", "Badulla"];
 
-  const routeLine: [number, number][] | null = route
-    ? [[route.origin.lat, route.origin.lng], [route.dest.lat, route.dest.lng]]
-    : null;
-
-  function handleStationSelect(station: ChargingStation) {
-    setSelectedStation(station);
-  }
-
-  function handleLocate() {
-    locate();
-    setFilter("radiusKm", 25);
-  }
-
-  // Handle PWA shortcut deep links (?action=nearby / favorites)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const action = params.get("action");
-    if (action === "nearby") {
-      locate();
-      setFilter("radiusKm", 25);
-    } else if (action === "favorites") {
-      setFilter("favoritesOnly", true);
-    }
-    if (action) {
-      window.history.replaceState({}, "", "/");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function handleClearLocation() {
-    clearLocation();
-    setFilter("radiusKm", null);
-  }
-
-  const sidebarProps = {
-    stations: displayStations, allStations: stations, filters, cities,
-    selectedStation, distanceMap, roadMap,
-    onFilterChange: setFilter, toggleAmenity, onClearFilters: clearFilters,
-    onStationSelect: handleStationSelect,
-    onLocate: handleLocate, locating, hasLocation: !!userLocation,
-    locationError, onClearLocation: handleClearLocation,
-    accuracyMeters: userLocation?.accuracy,
-    isFavorite, onToggleFavorite: toggleFavorite,
-    favoritesCount: favorites.size,
-    onRefresh: refetch,
-    isOffline,
-    tracking, onStartTracking: startTracking, onStopTracking: stopTracking,
-  };
-
+export default function LandingPage() {
   return (
-    <div className="flex h-full overflow-hidden bg-slate-50">
-      {/* SEO content — visually hidden but indexed by Google */}
-      <h1 className="sr-only">EV PRO — EV Charging Places in Sri Lanka | Find EV Charging Points Near You</h1>
-      <p className="sr-only">
-        Find EV charging places, EV charging points and electric vehicle charging stations across Sri Lanka.
-        300+ charging stations in Colombo, Kandy, Galle, Negombo, Matara, Jaffna, Anuradhapura, Trincomalee,
-        Kurunegala, Batticaloa, Hambantota, Nuwara Eliya, Dambulla, Ratnapura and Badulla.
-        Filter by AC charger, DC fast charger, Type 2, CCS2, CHAdeMO connector. Find free EV charging and 24-hour stations.
-        Get road directions and drive time to any EV charging station in Sri Lanka.
-        Daily updated data from Google Places. Built by eSystemLK — esystemlk.com.
-      </p>
+    <div className="min-h-full bg-white text-slate-800 overflow-y-auto" style={{ height: "100%" }}>
+      {/* ── Nav ─────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Image src="/ev.png" alt="EV PRO" width={36} height={36} className="rounded-xl" />
+            <span className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>
+              EV <span className="text-green-600">PRO</span>
+            </span>
+          </div>
+          <nav className="flex items-center gap-2">
+            <Link href="/services" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-green-600 px-3 py-2 rounded-lg transition-colors">
+              <Wrench className="w-4 h-4" /> Services
+            </Link>
+            <Link href="/map" className="flex items-center gap-1.5 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-xl transition-colors">
+              <Zap className="w-4 h-4" /> Open Map
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-      {/* ── Desktop sidebar (md+) ─────────────────────── */}
-      <div className="hidden md:flex">
-        <Sidebar {...sidebarProps} />
-      </div>
+      {/* ── Hero ────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 pt-12 md:pt-20 pb-10 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-semibold mb-6">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Live across Sri Lanka
+        </div>
+        <h1 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
+          Every EV charging place &amp; service<br className="hidden md:block" />
+          <span className="text-green-600"> in Sri Lanka</span>, on one map
+        </h1>
+        <p className="mt-5 text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
+          Find EV charging stations, showrooms, spare parts, garages and repair shops.
+          Real-time data, road directions, works offline — completely free.
+        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/map" className="flex items-center gap-2 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl transition-colors" style={{ fontFamily: "var(--font-heading)" }}>
+            <Zap className="w-4 h-4" /> Find Chargers <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link href="/services" className="flex items-center gap-2 text-sm font-semibold text-sky-700 bg-sky-50 border border-sky-200 hover:bg-sky-100 px-6 py-3 rounded-xl transition-colors" style={{ fontFamily: "var(--font-heading)" }}>
+            <Wrench className="w-4 h-4" /> EV Services
+          </Link>
+        </div>
+      </section>
 
-      {/* ── Map (always full area) ────────────────────── */}
-      <main className="flex-1 relative">
-        {loading ? (
-          <div className="flex items-center justify-center h-full bg-slate-50">
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative w-14 h-14">
-                <div className="absolute inset-0 rounded-full border-2 border-green-100" />
-                <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-green-500"
-                  style={{ animation: "spin 0.9s linear infinite" }} />
-                <div className="absolute inset-0 flex items-center justify-center text-xl">⚡</div>
+      {/* ── Live stats from database ────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 pb-12">
+        <LiveStats />
+      </section>
+
+      {/* ── Live map preview ────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 pb-16">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "var(--font-heading)" }}>The live charging map</h2>
+          <p className="text-slate-500 mt-2">Real charging stations loaded straight from our database</p>
+        </div>
+        <MapPreview />
+      </section>
+
+      {/* ── Features ────────────────────────────────── */}
+      <section className="bg-slate-50 border-y border-slate-100 py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "var(--font-heading)" }}>Everything an EV owner needs</h2>
+            <p className="text-slate-500 mt-2">Built for Sri Lankan electric vehicle drivers</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="rounded-2xl bg-white border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-green-600" />
+                </div>
+                <h3 className="font-semibold text-slate-800" style={{ fontFamily: "var(--font-heading)" }}>{title}</h3>
+                <p className="text-sm text-slate-500 mt-1">{desc}</p>
               </div>
-              <p className="text-sm font-semibold text-slate-600">Loading stations...</p>
-            </div>
+            ))}
           </div>
-        ) : (
-          <MapContainer
-            stations={displayStations}
-            onStationSelect={handleStationSelect}
-            selectedStation={selectedStation}
-            userLocation={userLocation}
-            routeLine={routeLine}
-          />
-        )}
+        </div>
+      </section>
 
-        {/* Route planner — top-left on desktop, above FABs on mobile */}
-        {!loading && (
-          <div className="absolute top-4 left-4 z-[999] hidden md:block">
-            <RoutePlanner active={route} resultCount={displayStations.length} onApply={setRoute} />
+      {/* ── Services ────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "var(--font-heading)" }}>Not just charging</h2>
+          <p className="text-slate-500 mt-2">Find every EV service on a dedicated map</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {SERVICE_TYPES.map(({ icon: Icon, label, color }) => (
+            <Link key={label} href="/services" className="rounded-2xl border border-slate-200 p-6 text-center hover:shadow-md transition-shadow">
+              <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mx-auto mb-3`}>
+                <Icon className="w-6 h-6" />
+              </div>
+              <p className="font-semibold text-slate-700">{label}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Coverage / SEO cities ───────────────────── */}
+      <section className="bg-slate-50 border-y border-slate-100 py-16">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "var(--font-heading)" }}>EV charging in every city</h2>
+          <p className="text-slate-500 mt-2 mb-6">Coverage across all of Sri Lanka</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {CITIES.map((c) => (
+              <Link key={c} href={`/map?city=${c}`} className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-sm text-slate-600 hover:border-green-300 hover:text-green-600 transition-colors">
+                EV charging {c}
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* Charger legend toggle */}
-        {!loading && <LegendToggle />}
+      {/* ── CTA ─────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-2xl md:text-4xl font-bold" style={{ fontFamily: "var(--font-heading)" }}>Ready to find your next charge?</h2>
+        <p className="text-slate-500 mt-3">Free forever. No sign-up. Works on any device.</p>
+        <Link href="/map" className="inline-flex items-center gap-2 mt-7 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 px-7 py-3.5 rounded-xl transition-colors" style={{ fontFamily: "var(--font-heading)" }}>
+          <Zap className="w-4 h-4" /> Open the Live Map <ArrowRight className="w-4 h-4" />
+        </Link>
+      </section>
 
-        {/* Station detail — desktop right panel / mobile full sheet */}
-        {selectedStation && (
-          <StationDetailModal
-            station={selectedStation}
-            onClose={() => setSelectedStation(null)}
-            roadInfo={roadMap.get(selectedStation.id)}
-            haversineKm={distanceMap.get(selectedStation.id)}
-            isFavorite={isFavorite(selectedStation.id)}
-            onToggleFavorite={toggleFavorite}
-            onStartTimer={chargeTimer.start}
-          />
-        )}
-
-        {/* Active charging timer bar */}
-        {chargeTimer.timer && (
-          <ChargingTimerBar
-            timer={chargeTimer.timer}
-            remainingMs={chargeTimer.remainingMs}
-            progress={chargeTimer.progress}
-            done={chargeTimer.done}
-            onStop={chargeTimer.stop}
-          />
-        )}
-
-        {/* Desktop floating stats bar */}
-        {!loading && (
-          <div className="hidden md:flex absolute top-4 left-1/2 -translate-x-1/2 z-[999] items-center gap-3 px-4 py-2 rounded-2xl text-xs bg-white border border-slate-200"
-            style={{ boxShadow: "0 2px 16px rgba(15,23,42,0.1)" }}>
-            <span className="text-slate-600"><strong className="text-green-600">{displayStations.length}</strong> stations on map</span>
-            {isOffline && (
-              <>
-                <span className="text-slate-200">|</span>
-                <span className="text-amber-600">⚠ Offline — showing saved data</span>
-              </>
-            )}
+      {/* ── Footer ──────────────────────────────────── */}
+      <footer className="border-t border-slate-100 py-8">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Image src="/ev.png" alt="EV PRO" width={28} height={28} className="rounded-lg" />
+            <span className="text-sm font-semibold text-slate-600" style={{ fontFamily: "var(--font-heading)" }}>EV PRO</span>
           </div>
-        )}
-      </main>
-
-      {/* ── Mobile route planner button ──────────────── */}
-      <div className="md:hidden fixed top-4 left-4 z-[960]">
-        <RoutePlanner active={route} resultCount={displayStations.length} onApply={setRoute} />
-      </div>
-
-      {/* ── Mobile bottom sheet (sm only) ────────────── */}
-      <div className="md:hidden">
-        <MobileSheet {...sidebarProps} loading={loading} />
-      </div>
+          <p className="text-xs text-slate-400">
+            Built by{" "}
+            <a href="https://www.esystemlk.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-slate-600 hover:text-green-600">eSystemLK</a>
+            {" "}· esystemlk.com
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
