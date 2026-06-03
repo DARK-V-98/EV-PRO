@@ -4,6 +4,7 @@ import "./globals.css";
 import { PWARegister } from "@/components/PWARegister";
 import { IOSInstallBanner } from "@/components/mobile/IOSInstallBanner";
 import { I18nProvider } from "@/lib/i18n";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const spaceGrotesk = Space_Grotesk({ variable: "--font-heading", subsets: ["latin"], weight: ["400","500","600","700"] });
 const dmSans = DM_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["300","400","500","600"] });
@@ -173,6 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="h-full antialiased">
         <I18nProvider>
+          <SplashScreen />
           <PWARegister />
           <JsonLd />
           <IOSInstallBanner />
